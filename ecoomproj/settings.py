@@ -141,7 +141,7 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 #     'welcome_sign': 'Welcome to Ecommerce Admin Panel!',
 # }
 
-
+# Jazzmin Settings
 JAZZMIN_SETTINGS = {
     "site_title": "E-commerce Admin",
     "site_header": "E-commerce",

@@ -83,7 +83,28 @@ def address(request):
 
 @login_required(login_url='login')
 def orders(request):
-    return render(request, 'app/orders.html')
+    orders = OrderPlaced.objects.filter(user=request.user).order_by('-ordered_date')
+    return render(request, 'app/orders.html', {'orders': orders})
+
+@login_required(login_url='login')
+def order_invoice(request, order_id):
+    try:
+        order = OrderPlaced.objects.get(id=order_id)
+        # Check if the user is staff or the order belongs to the user
+        if not request.user.is_staff and order.user != request.user:
+            return redirect('orders')
+            
+        subtotal = order.quantity * order.product.discounted_price
+        total_amount = subtotal + 70  # Adding shipping charge
+        
+        context = {
+            'order': order,
+            'subtotal': subtotal,
+            'total_amount': total_amount,
+        }
+        return render(request, 'app/invoice.html', context)
+    except OrderPlaced.DoesNotExist:
+        return redirect('orders')
 
 def mobile(request, data=None):
     try:
@@ -149,6 +170,32 @@ def checkout(request):
     amount = sum(item.quantity * item.product.discounted_price for item in cart_items)
     shipping_amount = 70.0 if amount else 0
     total_amount = amount + shipping_amount if amount else 0
+    
+    if request.method == 'POST':
+        address_id = request.POST.get('address')
+        if address_id:
+            customer = Customer.objects.get(id=address_id)
+            # Create orders for each cart item
+            ordered_items = []
+            for cart_item in cart_items:
+                order = OrderPlaced(
+                    user=user,
+                    customer=customer,
+                    product=cart_item.product,
+                    quantity=cart_item.quantity
+                )
+                order.save()
+                ordered_items.append(order)
+                # Clear cart after order is placed
+                cart_item.delete()
+            
+            if ordered_items:
+                context = {
+                    'order': ordered_items[0],  # First order for reference
+                    'ordered_items': ordered_items,
+                    'total_amount': total_amount,
+                }
+                return render(request, 'app/order_success.html', context)
     
     context = {
         'addresses': addresses,

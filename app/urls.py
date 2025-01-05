@@ -35,4 +35,5 @@ urlpatterns = [
     path('pluscart/', views.plus_cart, name='plus-cart'),
     path('minuscart/', views.minus_cart, name='minus-cart'),
     path('removecart/', views.remove_cart, name='remove-cart'),
+    path('order-invoice/<int:order_id>/', views.order_invoice, name='order-invoice'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

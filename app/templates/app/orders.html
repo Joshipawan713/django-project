@@ -1,21 +1,47 @@
 {% extends 'app/base.html' %}
 {% load static %}
-{% block title %}Buy Now{% endblock title %}
+{% block title %}My Orders{% endblock title %}
 {% block main-content %}
 <div class="container my-5">
- <div class="row">
- <h3>Welcome Sonam</h3>
-  <div class="col-sm-2 border-end">
-   <ul class="list-unstyled">
-    <li class="d-grid"><a href="{% url 'orders' %}" class="btn btn-primary">Orders</a></li>
-   </ul>
-  </div>
-  <div class="col-sm-9 offset-sm-1">
-   <div class="row">
-    <div class="col-sm-6">Order 1</div>
-    <div class="col-sm-6">Order 2</div>
-   </div>
-  </div>
- </div>
+    <div class="row">
+        <h3>My Orders</h3>
+        <div class="col-sm-12">
+            {% if orders %}
+                {% for order in orders %}
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-sm-3">
+                                <img src="{{ order.product.product_image.url }}" alt="{{ order.product.title }}" class="img-fluid" style="max-height: 150px;">
+                            </div>
+                            <div class="col-sm-6">
+                                <h5>{{ order.product.title }}</h5>
+                                <p class="mb-2">Quantity: {{ order.quantity }}</p>
+                                <p class="mb-2">Price: ₹{{ order.product.discounted_price }}</p>
+                                <p class="mb-2">Order Date: {{ order.ordered_date|date:"d M, Y" }}</p>
+                                <p class="mb-2">Status: <span class="badge {% if order.status == 'Delivered' %}bg-success{% elif order.status == 'Pending' %}bg-warning{% else %}bg-info{% endif %}">{{ order.status }}</span></p>
+                                <a href="{% url 'order-invoice' order.id %}" class="btn btn-info btn-sm mt-2">View Invoice</a>
+                            </div>
+                            <div class="col-sm-3">
+                                <h6>Shipping Address:</h6>
+                                <p class="small mb-0">{{ order.customer.name }}</p>
+                                <p class="small mb-0">{{ order.customer.locality }}</p>
+                                <p class="small mb-0">{{ order.customer.city }}, {{ order.customer.state }}</p>
+                                <p class="small mb-0">PIN: {{ order.customer.zipcode }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="card">
+                    <div class="card-body text-center">
+                        <h5>No orders found</h5>
+                        <a href="{% url 'home' %}" class="btn btn-primary mt-3">Continue Shopping</a>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
 </div>
 {% endblock main-content %}

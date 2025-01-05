@@ -1,0 +1,52 @@
+{% extends 'app/base.html' %}
+{% load static %}
+{% block title %}Product Detail{% endblock title %}
+{% block main-content %}
+<div class="container my-5">
+ <div class="row">
+  <div class="col-sm-6 text-center align-self-center">
+   <img src="{{ product.product_image.url }}" alt="" class="img-fluid img-thumbnail">
+  </div>
+  <div class="col-sm-5 offset-sm-1">
+   <h2>{{ product.title }}</h2>
+   <hr>
+   <p>{{ product.description }}</p>
+   <h4>₹{{ product.discounted_price }} <small class="fw-light text-decoration-line-through">₹{{ product.selling_price }}</small></h4>
+   
+   {% if messages %}
+   <div class="messages mt-3">
+       {% for message in messages %}
+       <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+           {{ message }}
+           <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+       </div>
+       {% endfor %}
+   </div>
+   {% endif %}
+   
+   {% if user.is_authenticated %}
+   <form action="{% url 'add-to-cart' %}" method="post" class="d-inline">
+    {% csrf_token %}
+    <input type="hidden" name="product_id" value="{{ product.id }}">
+    <button type="submit" class="btn btn-primary shadow px-5 py-2">Add to Cart</button>
+   </form>
+   <form action="{% url 'buy-now' %}" method="post" class="d-inline">
+    {% csrf_token %}
+    <input type="hidden" name="product_id" value="{{ product.id }}">
+    <button type="submit" class="btn btn-danger shadow px-5 py-2 ms-4">Buy Now</button>
+   </form>
+   {% else %}
+   <p class="alert alert-info">Please <a href="{% url 'login' %}?next={{ request.path }}">login</a> to add items to cart or buy.</p>
+   {% endif %}
+   
+   <h5 class="mt-5">Available Offers</h5>
+   <ul>
+    <li>Bank Offer 5% Unlimited Cashback on Flipkart Axis Bank Credit</li>
+    <li>Special Price Get extra ₹3000 off (price inclusive of discount)</li>
+    <li>No cost EMI ₹1,999/month. Standard EMI also available</li>
+    <li>Partner Offer ₹2000 Flipkart Gift Card on Every 1000th Transaction with a new Visa Debit/Credit Card</li>
+   </ul>
+  </div>
+ </div>
+</div>
+{% endblock main-content %}
